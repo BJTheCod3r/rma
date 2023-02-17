@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
+use App\Models\User;
 
 class RMA extends Model
 {
@@ -24,14 +25,11 @@ class RMA extends Model
     public static function createFromRequest(CreateRMARequest $request): RMA
     {
         return DB::transaction(function () use ($request) {
-            //todo create the RMA
-//            $rma =
+            $rma = $request->user()->rmas()->create();
 
-            //todo create RMA items from the request data
             foreach ($request->getItems() as $data) {
-
+                 $rma->items()->create($data->toArray());
             }
-
             return $rma;
         });
     }
@@ -43,7 +41,7 @@ class RMA extends Model
      */
     public function user(): BelongsTo
     {
-        //todo return the user that created this RMA
+        return $this->belongsTo(User::class);
     }
 
     /**
@@ -53,6 +51,6 @@ class RMA extends Model
      */
     public function items(): HasMany
     {
-        //todo return the items that belong to this RMA
+        return $this->hasMany(RMAItem::class, 'rma_id');
     }
 }

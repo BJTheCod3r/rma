@@ -19,13 +19,18 @@ class RMAItem extends Model
     ];
 
     /**
+     * @var string[]
+     */
+    protected $guarded = ['id'];
+
+    /**
      * @param RMA $rma
      * @param RMAItemData $data
      * @return static
      */
     public static function createFromData(RMA $rma, RMAItemData $data): static
     {
-        //todo implement creation of RMAItem from data
+        return $rma->items()->create($data->toArray());
     }
 
     /**
@@ -33,7 +38,7 @@ class RMAItem extends Model
      */
     public function rma(): BelongsTo
     {
-        //todo implement rma relationship
+        return $this->belongsTo(RMA::class);
     }
 
     /**
@@ -41,6 +46,6 @@ class RMAItem extends Model
      */
     public function getValue(): BaseIdentifiableEnum
     {
-        //todo get the correct enum instance from the type/value combination
+        return $this->type->getAssociatedEnumInstance($this->value);
     }
 }

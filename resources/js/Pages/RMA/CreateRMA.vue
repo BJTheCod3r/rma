@@ -1,33 +1,114 @@
 <template>
+    <Head title="Create RMA"/>
     <AppLayout>
         <Card class="py-12">
-            <p class="pb-4">Implement your create RMA page here</p>
+            <h1 class="mb-4">Create RMA</h1>
 
-            <p class="pb-4">The page should have the following:</p>
+            <form @submit.prevent="submit">
+                <div class="flex justify-between mb-4" v-for="(item) in form.items" :key="item.id">
+                    <SelectInput class="mr-2" v-model="item.type" :options="formattedTypes"/>
+                    <SelectInput class="mr-2" v-model="item.value" :options="getItems(item.type)"/>
+                    <TextInput class="px-2" placeholder="Identifier" v-model="item.identifier"/>
+                    <TextInput class="px-2" placeholder="Reason" v-model="item.reason"/>
+                    <DangerButton v-if="form.items.length > 1" @click="removeItem(item.id)">X</DangerButton>
+                </div>
+                <InputError class="mb-2" v-for="(error, i) in form.errors" :message="error" />
+                <div class="mt-4 flex justify-end">
+                    <SecondaryButton @click="addItem">Add Item</SecondaryButton>
+                </div>
+                <div class="mt-4 flex justify-end">
+                    <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+                        {{ form.processing ? 'Processing...' : 'Create RMA' }}
+                    </PrimaryButton>
+                </div>
+            </form>
 
-            <ul class="pb-4" style="list-style-type: circle">
-                <li>A way to add an additional item to the RMA</li>
-                <li>A way to edit an existing an item on the RMA</li>
-                <li>A way to remove an item from the RMA</li>
-                <li>A way to submit the create request once all information has been entered</li>
-            </ul>
-
-            <p class="pb-4">Each RMA item should have the following:</p>
-
-            <ul style="list-style-type: circle">
-                <li>A way to select the item's type</li>
-                <li>A way to select the item's value</li>
-                <li>A way to input the item's identifier</li>
-            </ul>
         </Card>
     </AppLayout>
 </template>
 
 <script setup>
+import {computed} from "vue";
+import {useForm, Head} from "@inertiajs/vue3";
 import AppLayout from "../../Layouts/AppLayout.vue";
 import Card from "../../Components/Card.vue";
+import PrimaryButton from "../../Components/PrimaryButton.vue";
+import SecondaryButton from "../../Components/SecondaryButton.vue";
+import SelectInput from "../../Components/SelectInput.vue";
+import TextInput from "../../Components/TextInput.vue";
+import DangerButton from "../../Components/DangerButton.vue";
+import InputError from "../../Components/InputError.vue";
 
-defineProps({
-    types: Array
+const props = defineProps({
+    types: {
+        type: Array,
+        default: () => []
+    }
 });
+
+const randomId = () => {
+    return Math.random().toString(36).substr(2, 9);
+}
+
+const form = useForm({
+    items: [
+        {
+            id: randomId(),
+            type: '',
+            value: '',
+            identifier: '',
+            reason: '',
+        }
+    ]
+});
+
+const submit = () => {
+    form.transform(data => ({
+        items: data.items.map(item => ({
+            type: item.type,
+            value: item.value,
+            identifier: item.identifier,
+            reason: item.reason,
+        }))
+    })).post(route('rma.store'));
+};
+
+const formattedTypes = computed(() => {
+    return [
+        {
+            text: 'Select Type',
+            value: ''
+        },
+        ...props.types.map(type => {
+            return {
+                text: type.text,
+                value: type.value
+            }
+        })
+    ]
+});
+
+const getItems = (type) => {
+    const item = props.types.find(t => t.value === type);
+
+    return [{
+        text: 'Select Item',
+        value: ''
+    }, ...(item ? item.items : [])];
+}
+
+const addItem = () => {
+    form.items.push({
+        id: randomId(),
+        type: '',
+        value: '',
+        identifier: '',
+        reason: '',
+    });
+}
+
+const removeItem = (id) => {
+    form.items = form.items.filter(item => item.id !== id);
+}
+
 </script>

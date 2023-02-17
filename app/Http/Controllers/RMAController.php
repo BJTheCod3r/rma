@@ -23,7 +23,7 @@ class RMAController extends Controller
     public function index(Request $request): Response
     {
         //todo get resources
-        $resources = RMAInListResource::collection([])->toArray($request);
+        $resources = RMAInListResource::collection(RMA::all())->toArray($request);
 
         return Inertia::render('RMA/RMAList', ['data' => $resources]);
     }
@@ -33,7 +33,17 @@ class RMAController extends Controller
      */
     public function create(): Response
     {
-        info(RMA_TYPE::getCollection());
+
+        $types = RMA_TYPE::getCollection()->map(fn(RMA_TYPE $type) => [
+            'text' => $type->description,
+            'value' => $type->value,
+            'items' => $type->getAssociatedInstanceMembers()->map(fn(BaseIdentifiableEnum $member) => [
+                'text' => $member->description,
+                'value' => $member->value
+            ])->toArray()
+        ])->toArray();
+
+
         return Inertia::render('RMA/CreateRMA', [
             'types' => RMA_TYPE::getCollection()->map(fn(RMA_TYPE $type) => [
                 //todo assign correct values for text and value
@@ -54,10 +64,7 @@ class RMAController extends Controller
      */
     public function store(CreateRMARequest $request): RedirectResponse
     {
-        //todo validate the identifier
-
-        //todo create the RMA
-
+        RMA::createFromRequest($request);
         return redirect(route('rma.index'))->with('status', 'RMA Created Successfully');
     }
 
@@ -66,9 +73,8 @@ class RMAController extends Controller
      * @param Request $request
      * @return Response
      */
-    public function show($rma, Request $request): Response
+    public function show(RMA $rma, Request $request): Response
     {
-        //todo select the correct page component
-        return Inertia::render('', RMAResource::make($rma)->toArray($request));
+        return Inertia::render('RMA/ViewRMA', RMAResource::make($rma)->toArray($request));
     }
 }

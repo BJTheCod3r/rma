@@ -3,6 +3,7 @@
 namespace App\Models\RMA\Type;
 
 use App\Models\RMA\Type\Validators\ValidatesIdentifiers;
+use App\Models\RMA\Type\Validators\BatteryIdentifierValidator;
 
 class BATTERY extends BaseIdentifiableEnum
 {
@@ -15,6 +16,6 @@ class BATTERY extends BaseIdentifiableEnum
      */
     protected function getValidator(): ValidatesIdentifiers
     {
-        // TODO: Implement getValidator() method.
+        return new BatteryIdentifierValidator();
     }
 }

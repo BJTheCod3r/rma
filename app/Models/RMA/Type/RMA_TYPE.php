@@ -47,9 +47,6 @@ class RMA_TYPE extends BaseEnum
      */
     public function getAssociatedEnumClass(): string
     {
-        //todo get the enum class associated with this instance's value
-        //static::BATTERY should correspond to BATTERY::class etc
-        info($this->value);
         return match ($this->value) {
             self::BATTERY => BATTERY::class,
             self::INVERTER => INVERTER::class,

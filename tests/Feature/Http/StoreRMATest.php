@@ -55,10 +55,10 @@ class StoreRMATest extends TestCase
     {
         $data = [
             'items' => [
-                RMAItemFactory::makeData($this->faker),
-                RMAItemFactory::makeData($this->faker),
-                RMAItemFactory::makeData($this->faker),
-                RMAItemFactory::makeData($this->faker),
+                RMAItemFactory::makeValidData($this->faker),
+                RMAItemFactory::makeValidData($this->faker),
+                RMAItemFactory::makeValidData($this->faker),
+                RMAItemFactory::makeValidData($this->faker),
             ]
         ];
 

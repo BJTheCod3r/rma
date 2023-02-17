@@ -19,6 +19,7 @@ class RMAIndexTest extends TestCase
 
         RMA::factory()->count($count)->create();
 
+
         $response = $this->actingAs(User::factory()->create())->get(route('rma.index'));
 
         $response->assertOk();
